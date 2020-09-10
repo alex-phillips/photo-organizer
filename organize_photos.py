@@ -46,10 +46,16 @@ def process_file(fname):
     exif = e.get_metadata(fname)[0]
 
     date = None
-    if 'EXIF:DateTimeOriginal' in exif:
-        date = datetime.strptime(exif['EXIF:DateTimeOriginal'], EXIF_TS_FORMAT)
-    elif 'QuickTime:CreateDate' in exif:
-        date = datetime.strptime(exif['QuickTime:CreateDate'], EXIF_TS_FORMAT)
+
+    for metadata_field in [
+        'EXIF:CreateDate',
+        'EXIF:DateTimeOriginal',
+        'XMP:CreateDate',
+        'XMP:DateCreated',
+        'QuickTime:CreateDate',
+    ]:
+        if metadata_field in exif:
+            date = datetime.strptime(exif[metadata_field], EXIF_TS_FORMAT)
 
     if date is None:
         print("ERROR: Unable to parse file {}".format(fname))
