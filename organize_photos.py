@@ -61,7 +61,7 @@ def process_file(fname):
         "QuickTime:CreateDate",
     ]:
         if metadata_field in exif:
-            print("  Field found: {}".format(metadata_field))
+            print("  Field {} found. Value: {}".format(metadata_field, exif[metadata_field]))
             date = datetime.strptime(exif[metadata_field], EXIF_TS_FORMAT)
             break
 
