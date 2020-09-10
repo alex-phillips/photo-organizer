@@ -63,6 +63,7 @@ def process_file(fname):
         if metadata_field in exif:
             print("  Field found: {}".format(metadata_field))
             date = datetime.strptime(exif[metadata_field], EXIF_TS_FORMAT)
+            break
 
     if date is None:
         print("ERROR: Unable to parse file {}".format(fname))
