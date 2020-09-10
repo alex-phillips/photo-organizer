@@ -75,7 +75,7 @@ def process_file(fname):
 
     destination = os.path.join(dest_dir, filename)
     if os.path.exists(destination):
-        print("Destination file already exists: {}".format(destination))
+        print("  Destination file already exists: {}".format(destination))
 
         if args.move == True:
             with open(fname, "rb") as file_to_check:
@@ -85,11 +85,11 @@ def process_file(fname):
                 existing_hash = hashlib.md5(file_to_check.read()).hexdigest()
 
             if file_hash == existing_hash:
-                print("Files are identical, removing source")
+                print("  Files are identical, removing source")
                 if args.dry_run == False:
                     os.remove(fname)
             else:
-                print("Files are NOT identical, keeping source.")
+                print("  Files are NOT identical, keeping source.")
 
         return
 
