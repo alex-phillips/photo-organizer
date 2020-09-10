@@ -10,6 +10,7 @@ import hashlib
 
 EXIF_TS_FORMAT = "%Y:%m:%d %H:%M:%S"
 
+
 class ExifTool(object):
 
     sentinel = "{ready}\n"
@@ -19,12 +20,14 @@ class ExifTool(object):
 
     def __enter__(self):
         self.process = subprocess.Popen(
-            [self.executable, "-stay_open", "True",  "-@", "-"],
+            [self.executable, "-stay_open", "True", "-@", "-"],
             universal_newlines=True,
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+        )
         return self
 
-    def  __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback):
         self.process.stdin.write("-stay_open\nFalse\n")
         self.process.stdin.flush()
 
@@ -35,26 +38,30 @@ class ExifTool(object):
         output = ""
         fd = self.process.stdout.fileno()
         while not output.endswith(self.sentinel):
-            output += os.read(fd, 4096).decode('utf-8')
-        return output[:-len(self.sentinel)]
+            output += os.read(fd, 4096).decode("utf-8")
+        return output[: -len(self.sentinel)]
 
     def get_metadata(self, *filenames):
         return json.loads(self.execute("-G", "-j", "-n", *filenames))
+
 
 def process_file(fname):
     filename = os.path.basename(fname)
     exif = e.get_metadata(fname)[0]
 
+    print("Processing {}".format(filename))
+
     date = None
 
     for metadata_field in [
-        'EXIF:CreateDate',
-        'EXIF:DateTimeOriginal',
-        'XMP:CreateDate',
-        'XMP:DateCreated',
-        'QuickTime:CreateDate',
+        "EXIF:DateTimeOriginal",
+        "EXIF:CreateDate",
+        "XMP:CreateDate",
+        "XMP:DateCreated",
+        "QuickTime:CreateDate",
     ]:
         if metadata_field in exif:
+            print("  Field found: {}".format(metadata_field))
             date = datetime.strptime(exif[metadata_field], EXIF_TS_FORMAT)
 
     if date is None:
@@ -70,10 +77,10 @@ def process_file(fname):
         print("Destination file already exists: {}".format(destination))
 
         if args.move == True:
-            with open(fname, 'rb') as file_to_check:
+            with open(fname, "rb") as file_to_check:
                 file_hash = hashlib.md5(file_to_check.read()).hexdigest()
 
-            with open(destination, 'rb') as file_to_check:
+            with open(destination, "rb") as file_to_check:
                 existing_hash = hashlib.md5(file_to_check.read()).hexdigest()
 
             if file_hash == existing_hash:
@@ -94,15 +101,16 @@ def process_file(fname):
         if args.dry_run == False:
             shutil.move(fname, destination)
 
-parser = argparse.ArgumentParser(description='Organize files based on EXIF date.')
-parser.add_argument('source',
-                    help='Source to scan for files')
-parser.add_argument('-d', '--destination',
-                    help='Destination to move files to')
-parser.add_argument('-m', '--move',
-                    help='Move files instead of copy', action='store_true')
-parser.add_argument('--dry-run',
-                    help="Don't perform any copy or move actions", action='store_true')
+
+parser = argparse.ArgumentParser(description="Organize files based on EXIF date.")
+parser.add_argument("source", help="Source to scan for files")
+parser.add_argument("-d", "--destination", help="Destination to move files to")
+parser.add_argument(
+    "-m", "--move", help="Move files instead of copy", action="store_true"
+)
+parser.add_argument(
+    "--dry-run", help="Don't perform any copy or move actions", action="store_true"
+)
 
 args = parser.parse_args()
 
