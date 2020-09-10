@@ -62,7 +62,7 @@ def process_file(fname):
     ]:
         if metadata_field in exif:
             print("  Field {} found. Value: {}".format(metadata_field, exif[metadata_field]))
-            date = datetime.strptime(exif[metadata_field], EXIF_TS_FORMAT)
+            date = datetime.strptime(exif[metadata_field].split('.')[0], EXIF_TS_FORMAT)
             break
 
     if date is None:
