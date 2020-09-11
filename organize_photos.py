@@ -108,7 +108,7 @@ def process_file(fname):
 
 parser = argparse.ArgumentParser(description="Organize files based on EXIF date.")
 parser.add_argument("source", help="Source to scan for files", nargs="+")
-parser.add_argument("-d", "--destination", help="Destination to move files to")
+parser.add_argument("destination", help="Destination to move files to")
 parser.add_argument(
     "-m", "--move", help="Move files instead of copy", action="store_true"
 )
