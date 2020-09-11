@@ -51,6 +51,7 @@ def process_file(fname, extensions=None):
     filename = os.path.basename(fname)
     extension = lower(Path(filename).suffix)
 
+    """Only process file if extension exists in list of extensions passed"""
     if extensions is not None and extension not in extensions:
         return
 
@@ -68,16 +69,12 @@ def process_file(fname, extensions=None):
         "QuickTime:CreateDate",
     ]:
         if metadata_field in exif:
-            print(
-                "  Field {} found. Value: {}".format(
-                    metadata_field, exif[metadata_field]
-                )
-            )
+            print(f"  Field {metadata_field} found. Value: {exif[metadata_field]}")
             date = datetime.strptime(exif[metadata_field].split(".")[0], EXIF_TS_FORMAT)
             break
 
     if date is None:
-        print("ERROR: Unable to parse file {}".format(fname))
+        print(f"ERROR: Unable to parse file {fname}")
         return
 
     dest_dir = os.path.join(args.destination, date.strftime("%Y/%m"))
@@ -86,7 +83,7 @@ def process_file(fname, extensions=None):
 
     destination = os.path.join(dest_dir, filename)
     if os.path.exists(destination):
-        print("  Destination file already exists: {}".format(destination))
+        print(f"  Destination file already exists: {destination}")
 
         if args.move == True:
             with open(fname, "rb") as file_to_check:
@@ -105,11 +102,11 @@ def process_file(fname, extensions=None):
         return
 
     if args.move == False:
-        print("COPYING {} -> {}".format(fname, destination))
+        print(f"COPYING {fname} -> {destination}")
         if args.dry_run == False:
             shutil.copy2(fname, destination)
     else:
-        print("MOVING {} -> {}".format(fname, destination))
+        print(f"MOVING {fname} -> {destination}")
         if args.dry_run == False:
             shutil.move(fname, destination)
 
