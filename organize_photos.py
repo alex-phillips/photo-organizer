@@ -49,7 +49,7 @@ class ExifTool(object):
 
 def process_file(fname, extensions=None):
     filename = os.path.basename(fname)
-    extension = lower(Path(filename).suffix)
+    extension = Path(filename).suffix.lower()
 
     """Only process file if extension exists in list of extensions passed"""
     if extensions is not None and extension not in extensions:
@@ -136,7 +136,7 @@ if os.path.exists(args.source) == False:
     quit()
 
 if args.extensions is not None:
-    args.extensions = "|".join(lower(args.extensions).split(","))
+    args.extensions = "|".join(args.extensions.lower().split(","))
 
 with ExifTool() as e:
     if os.path.isfile(args.source):
