@@ -53,6 +53,7 @@ def process_file(fname, extensions=None):
 
     """Only process file if extension exists in list of extensions passed"""
     if extensions is not None and extension not in extensions:
+        print(f"Excluding {filename}")
         return
 
     exif = e.get_metadata(fname)[0]
@@ -136,7 +137,7 @@ if os.path.exists(args.source) == False:
     quit()
 
 if args.extensions is not None:
-    args.extensions = "|".join(args.extensions.lower().split(","))
+    args.extensions = args.extensions.lower().split(",")
 
 with ExifTool() as e:
     if os.path.isfile(args.source):
