@@ -9,6 +9,7 @@ import shutil
 import hashlib
 from pathlib import Path
 import re
+import glob
 
 EXIF_TS_FORMAT = "%Y:%m:%d %H:%M:%S"
 
@@ -113,7 +114,7 @@ def process_file(fname, extensions=None):
 
 
 parser = argparse.ArgumentParser(description="Organize files based on EXIF date.")
-parser.add_argument("source", help="Source to scan for files")
+parser.add_argument("source", help="Source to scan for files", nargs='+')
 parser.add_argument("-d", "--destination", help="Destination to move files to")
 parser.add_argument(
     "-m", "--move", help="Move files instead of copy", action="store_true"
@@ -131,19 +132,15 @@ if args.destination is None:
     print("Must include destination. Exiting.")
     quit()
 
-print(f"Scanning {args.source}")
-if os.path.exists(args.source) == False:
-    print("Source doesn't exist. Exiting.")
-    quit()
-
 if args.extensions is not None:
     args.extensions = args.extensions.lower().split(",")
 
 with ExifTool() as e:
-    if os.path.isfile(args.source):
-        process_file(os.path.abspath(args.source), args.extensions)
-    elif os.path.isdir(args.source):
-        for dirpath, dirs, files in os.walk(args.source):
-            for filename in files:
-                fname = os.path.join(dirpath, filename)
-                process_file(fname, args.extensions)
+    for source in args.source:
+        if os.path.isfile(source):
+            process_file(os.path.abspath(source), args.extensions)
+        elif os.path.isdir(source):
+            for dirpath, dirs, files in os.walk(source):
+                for filename in files:
+                    fname = os.path.join(dirpath, filename)
+                    process_file(fname, args.extensions)
