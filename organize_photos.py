@@ -49,14 +49,14 @@ class ExifTool(object):
 
 def process_file(fname, extensions=None):
     filename = os.path.basename(fname)
-    extension = Path(filename).suffix
+    extension = lower(Path(filename).suffix)
 
-    if extensions is not None and re.search(rf'{extensions}', extension, re.IGNORECASE) is None:
+    if extensions is not None and extension not in extensions:
         return
 
     exif = e.get_metadata(fname)[0]
 
-    print("Processing {}".format(filename))
+    print(f"Processing {filename}")
 
     date = None
 
@@ -68,8 +68,12 @@ def process_file(fname, extensions=None):
         "QuickTime:CreateDate",
     ]:
         if metadata_field in exif:
-            print("  Field {} found. Value: {}".format(metadata_field, exif[metadata_field]))
-            date = datetime.strptime(exif[metadata_field].split('.')[0], EXIF_TS_FORMAT)
+            print(
+                "  Field {} found. Value: {}".format(
+                    metadata_field, exif[metadata_field]
+                )
+            )
+            date = datetime.strptime(exif[metadata_field].split(".")[0], EXIF_TS_FORMAT)
             break
 
     if date is None:
@@ -129,13 +133,13 @@ if args.destination is None:
     print("Must include destination. Exiting.")
     quit()
 
-print("Scanning {}".format(args.source))
+print(f"Scanning {args.source}")
 if os.path.exists(args.source) == False:
     print("Source doesn't exist. Exiting.")
     quit()
 
 if args.extensions is not None:
-    args.extensions = '|'.join(args.extensions.split(','))
+    args.extensions = "|".join(lower(args.extensions).split(","))
 
 with ExifTool() as e:
     if os.path.isfile(args.source):
