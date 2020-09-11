@@ -96,7 +96,7 @@ def process_file(fname):
     if args.move == False:
         print("COPYING {} -> {}".format(fname, destination))
         if args.dry_run == False:
-            shutil.copy(fname, destination)
+            shutil.copy2(fname, destination)
     else:
         print("MOVING {} -> {}".format(fname, destination))
         if args.dry_run == False:
