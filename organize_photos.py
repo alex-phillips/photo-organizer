@@ -49,7 +49,7 @@ class ExifTool(object):
 
 def process_file(fname, extensions=None):
     filename = os.path.basename(fname)
-    extension = '.'.join(Path(filename).suffix.lower().split('.')[1:])
+    extension = ".".join(Path(filename).suffix.lower().split(".")[1:])
 
     """Only process file if extension exists in list of extensions passed"""
     if extensions is not None and extension not in extensions:
