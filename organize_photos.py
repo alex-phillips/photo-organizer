@@ -48,15 +48,8 @@ class ExifTool(object):
         return json.loads(self.execute("-G", "-j", "-n", *filenames))
 
 
-def process_file(fname, extensions=None):
+def process_file(fname):
     filename = os.path.basename(fname)
-    extension = ".".join(Path(filename).suffix.lower().split(".")[1:])
-
-    """Only process file if extension exists in list of extensions passed"""
-    if extensions is not None and extension not in extensions:
-        print(f"Excluding {filename}")
-        return
-
     exif = e.get_metadata(fname)[0]
 
     print(f"Processing {filename}")
@@ -114,16 +107,13 @@ def process_file(fname, extensions=None):
 
 
 parser = argparse.ArgumentParser(description="Organize files based on EXIF date.")
-parser.add_argument("source", help="Source to scan for files", nargs='+')
+parser.add_argument("source", help="Source to scan for files", nargs="+")
 parser.add_argument("-d", "--destination", help="Destination to move files to")
 parser.add_argument(
     "-m", "--move", help="Move files instead of copy", action="store_true"
 )
 parser.add_argument(
     "--dry-run", help="Don't perform any copy or move actions", action="store_true"
-)
-parser.add_argument(
-    "-e", "--extensions", help="Specify file extensions to act on (comma-separated)"
 )
 
 args = parser.parse_args()
@@ -132,15 +122,12 @@ if args.destination is None:
     print("Must include destination. Exiting.")
     quit()
 
-if args.extensions is not None:
-    args.extensions = args.extensions.lower().split(",")
-
 with ExifTool() as e:
     for source in args.source:
         if os.path.isfile(source):
-            process_file(os.path.abspath(source), args.extensions)
+            process_file(os.path.abspath(source))
         elif os.path.isdir(source):
             for dirpath, dirs, files in os.walk(source):
                 for filename in files:
                     fname = os.path.join(dirpath, filename)
-                    process_file(fname, args.extensions)
+                    process_file(fname)
