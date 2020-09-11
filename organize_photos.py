@@ -97,11 +97,11 @@ def process_file(fname):
         return
 
     if args.move == False:
-        print(f"COPYING {fname} -> {destination}")
+        print(f"  COPYING {fname} -> {destination}")
         if args.dry_run == False:
             shutil.copy2(fname, destination)
     else:
-        print(f"MOVING {fname} -> {destination}")
+        print(f"  MOVING {fname} -> {destination}")
         if args.dry_run == False:
             shutil.move(fname, destination)
 
