@@ -50,9 +50,14 @@ class ExifTool(object):
 
 def process_file(fname):
     filename = os.path.basename(fname)
-    exif = e.get_metadata(fname)[0]
-
     print(f"Processing {filename}")
+
+    mtime = os.path.getmtime(fname)
+    if datetime.now().timestamp() - mtime < 60:
+        print("  File is too new. Skipping.")
+        return
+
+    exif = e.get_metadata(fname)[0]
 
     date = None
 
