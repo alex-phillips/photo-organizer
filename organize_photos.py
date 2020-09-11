@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
-import subprocess
-import os
-import json
-from datetime import datetime
 import argparse
-import shutil
+from datetime import datetime
+import glob
 import hashlib
+import json
+import os
 from pathlib import Path
 import re
-import glob
+import shutil
+import subprocess
 
 EXIF_TS_FORMAT = "%Y:%m:%d %H:%M:%S"
 
