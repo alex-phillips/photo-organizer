@@ -70,7 +70,7 @@ def process_file(fname):
         return
 
     dest_dir = os.path.join(args.destination, date.strftime("%Y/%m"))
-    if os.path.exists(dest_dir) == False:
+    if os.path.exists(dest_dir) == False and args.dry_run == False:
         os.makedirs(dest_dir)
 
     destination = os.path.join(dest_dir, filename)
