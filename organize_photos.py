@@ -7,6 +7,8 @@ from datetime import datetime
 import argparse
 import shutil
 import hashlib
+from pathlib import Path
+import re
 
 EXIF_TS_FORMAT = "%Y:%m:%d %H:%M:%S"
 
@@ -45,8 +47,13 @@ class ExifTool(object):
         return json.loads(self.execute("-G", "-j", "-n", *filenames))
 
 
-def process_file(fname):
+def process_file(fname, extensions=None):
     filename = os.path.basename(fname)
+    extension = Path(filename).suffix
+
+    if extensions is not None and re.search(rf'{extensions}', extension, re.IGNORECASE) is None:
+        return
+
     exif = e.get_metadata(fname)[0]
 
     print("Processing {}".format(filename))
@@ -112,6 +119,9 @@ parser.add_argument(
 parser.add_argument(
     "--dry-run", help="Don't perform any copy or move actions", action="store_true"
 )
+parser.add_argument(
+    "-e", "--extensions", help="Specify file extensions to act on (comma-separated)"
+)
 
 args = parser.parse_args()
 
@@ -124,11 +134,14 @@ if os.path.exists(args.source) == False:
     print("Source doesn't exist. Exiting.")
     quit()
 
+if args.extensions is not None:
+    args.extensions = '|'.join(args.extensions.split(','))
+
 with ExifTool() as e:
     if os.path.isfile(args.source):
-        process_file(os.path.abspath(args.source))
+        process_file(os.path.abspath(args.source), args.extensions)
     elif os.path.isdir(args.source):
         for dirpath, dirs, files in os.walk(args.source):
             for filename in files:
                 fname = os.path.join(dirpath, filename)
-                process_file(fname)
+                process_file(fname, args.extensions)
