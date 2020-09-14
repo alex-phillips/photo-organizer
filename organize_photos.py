@@ -74,7 +74,7 @@ def process_file(fname):
             break
 
     if date is None:
-        print(f"ERROR: Unable to parse file {fname}")
+        print(f"ERROR: Unable to find valid date metadata in {fname}")
         return
 
     dest_dir = os.path.join(args.destination, date.strftime("%Y/%m"))
