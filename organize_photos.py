@@ -48,7 +48,9 @@ class ExifTool(object):
         return json.loads(self.execute("-G", "-j", "-n", *filenames))
 
 
-def process_file(fname):
+def process_file(fname, field = None, field_format = None):
+    field_format = field_format or EXIF_TS_FORMAT
+
     filename = os.path.basename(fname)
     print(f"Processing {filename}")
 
@@ -60,21 +62,22 @@ def process_file(fname):
     exif = e.get_metadata(fname)[0]
 
     date = None
-
-    for metadata_field in [
+    fields = [field] if field is not None else [
         "EXIF:DateTimeOriginal",
         "EXIF:CreateDate",
         "XMP:CreateDate",
         "XMP:DateCreated",
         "QuickTime:CreateDate",
-    ]:
+    ]
+
+    for metadata_field in fields:
         if metadata_field in exif:
-            print(f"  Field {metadata_field} found. Value: {exif[metadata_field]}")
-            date = datetime.strptime(exif[metadata_field].split(".")[0], EXIF_TS_FORMAT)
+            print(f"  Field {metadata_field} found. Value: {exif[metadata_field]} (using format {field_format}")
+            date = datetime.strptime(exif[metadata_field].split(".")[0], field_format)
             break
 
     if date is None:
-        print(f"ERROR: Unable to find valid date metadata in {fname}")
+        print(f"ERROR: Unable to parse file {fname}")
         return
 
     dest_dir = os.path.join(args.destination, date.strftime("%Y/%m"))
@@ -120,6 +123,12 @@ parser.add_argument(
 parser.add_argument(
     "--dry-run", help="Don't perform any copy or move actions", action="store_true"
 )
+parser.add_argument(
+    "-f", "--field", help="Use specified field for date parsing"
+)
+parser.add_argument(
+    "--format", help="Use specified datetime format for parsing"
+)
 
 args = parser.parse_args()
 
@@ -130,9 +139,9 @@ if args.destination is None:
 with ExifTool() as e:
     for source in args.source:
         if os.path.isfile(source):
-            process_file(os.path.abspath(source))
+            process_file(os.path.abspath(source), args.field, args.format)
         elif os.path.isdir(source):
             for dirpath, dirs, files in os.walk(source):
                 for filename in files:
                     fname = os.path.join(dirpath, filename)
-                    process_file(fname)
+                    process_file(fname, args.field, args.format)
